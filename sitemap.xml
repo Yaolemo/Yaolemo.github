@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://yaolemo.github.io/archives/8cebd5c9.html</loc>
+    <loc>https://yaolemo.github.io/archives/c51667ed.html</loc>
     
     <lastmod>2023-05-18</lastmod>
     
@@ -63,6 +63,13 @@
     <priority>1.0</priority>
   </url>
 
+  
+  <url>
+    <loc>https://yaolemo.github.io/tags/%E5%90%8E%E5%A4%84%E7%90%86/</loc>
+    <lastmod>2023-05-18</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
   
   <url>
     <loc>https://yaolemo.github.io/tags/ANSYS/</loc>
