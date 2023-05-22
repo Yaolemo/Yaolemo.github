@@ -4,6 +4,19 @@
   
     
     <entry>
+      <title></title>
+      <link href="/archives/0.html"/>
+      <url>/archives/0.html</url>
+      
+        <content type="html"><![CDATA[<h1>使用ANSYS APDL 进行分析，很多人第一步就错了！</h1><p>ANSYS软件的安装教程网络上有很多资源可以参考，安装过程非常繁琐耗时，且安装完成后并不会在桌面上生成我们常用到的软件的快捷方式，这时候就需要我们在开始菜单中找到Mechanical APDL这个软件，很多人从这一步就开始错了。<br>以19.0版本的ANSYS为例，在开始菜单中找到ANSYS 19.0文件夹下拉打开，可以找到两个软件：Mechanical APDL 19.0和Mechanical APDL Product Launcher 19.0，往往很多人就选择了第一个打开，接下来介绍这两者的区别。</p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/2023/05/image-20230522171555630-4b9c34.png?x-oss-process=style/watermark" alt="image-20230522171555630"></p><h2 id="Mechanical-APDL-Product-Launcher-19-0">Mechanical APDL Product Launcher 19.0</h2><p>打开Mechanical APDL Product Launcher 19.0，界面如下：</p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/2023/05/image-20230522182741810-a2c75f.png?x-oss-process=style/watermark" alt=""></p><p>最上方可以选择我们的仿真环境和许可证，最重要的部分是中间的Working Directory(工作目录)和Job Name(项目名称)的设置。工作目录负责存放ANSYS在运行过程产生的所有文件，同时ANSYS也可以调用工作目录中的文件。需要注意的是默认情况下ANSYS会把工作目录设置在C盘，一次仿真分析产生的文件大小在几十M~几个G不等，这些文件会让你的C盘臃肿不堪，因此还是建议将工作目录放在系统盘以外的地方。</p>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>常用ANSYS后处理命令流（附详细解释）,持续更新中...</title>
       <link href="/archives/c51667ed.html"/>
       <url>/archives/c51667ed.html</url>
