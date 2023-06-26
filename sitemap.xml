@@ -65,7 +65,7 @@
   </url>
   
   <url>
-    <loc>https://yaolemo.github.io/categories/index.html</loc>
+    <loc>https://yaolemo.github.io/link/index.html</loc>
     
     <lastmod>2023-05-12</lastmod>
     
@@ -74,7 +74,7 @@
   </url>
   
   <url>
-    <loc>https://yaolemo.github.io/link/index.html</loc>
+    <loc>https://yaolemo.github.io/categories/index.html</loc>
     
     <lastmod>2023-05-12</lastmod>
     
@@ -92,14 +92,14 @@
 
   
   <url>
-    <loc>https://yaolemo.github.io/tags/ANSYS/</loc>
+    <loc>https://yaolemo.github.io/tags/%E5%AE%9E%E4%BD%93%E6%A8%A1%E5%9E%8B%E7%AE%80%E6%94%AF%E7%BA%A6%E6%9D%9F/</loc>
     <lastmod>2023-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://yaolemo.github.io/tags/%E5%AE%9E%E4%BD%93%E6%A8%A1%E5%9E%8B%E7%AE%80%E6%94%AF%E7%BA%A6%E6%9D%9F/</loc>
+    <loc>https://yaolemo.github.io/tags/ANSYS/</loc>
     <lastmod>2023-06-26</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
