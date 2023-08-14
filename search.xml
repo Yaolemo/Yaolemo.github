@@ -4,6 +4,56 @@
   
     
     <entry>
+      <title>Combin39与Combin40弹簧串联问题</title>
+      <link href="/posts/2a104636.html"/>
+      <url>/posts/2a104636.html</url>
+      
+        <content type="html"><![CDATA[<h1>基本知识</h1><p>1.Combin39非线性弹簧单元</p><p>2.Combin40组合弹簧单元</p><h1>案例分析</h1><p>如图所示一圆杆长L=2m，面积A=0.01m2，,弹性模量为200MPa。上端固定，下端与一弹簧之间有间隙△=0.2m，弹簧下端固定，弹簧刚度K=1MN/m，圆杆中间作用一向下的荷载P=500kN。分析圆杆变形及与弹簧接触后的受力情况。</p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/image-20230814161248191.png?x-oss-process=style/watermark" alt="image-20230814161248191"></p><p>此问题可使用Combin40单元的间隙功能来模拟，但在定义间隙时要注意始末节点的编号，间隙位于节点的末侧，一旦互换就会形成图d)所示的“吊钩单元”，也就达不到预期的效果。</p><h2 id="用Combin40单元建模分析">用Combin40单元建模分析</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line">finish</span><br><span class="line">/clear</span><br><span class="line"></span><br><span class="line">/prep7</span><br><span class="line">et,1,beam3</span><br><span class="line">et,2,combin40</span><br><span class="line">keyopt,2,3,2</span><br><span class="line"></span><br><span class="line">mp,ex,1,2e8</span><br><span class="line">mp,prxy,1,0.3</span><br><span class="line">r,1,0.01,1e-4,0.1</span><br><span class="line">r,2,1e6,,,0.2</span><br><span class="line"></span><br><span class="line">n,1,,4</span><br><span class="line">n,2,,2</span><br><span class="line">n,3</span><br><span class="line">n,4,0,-1.0</span><br><span class="line">type,1</span><br><span class="line">real,1</span><br><span class="line">e,1,2</span><br><span class="line">e,2,3</span><br><span class="line">type,2</span><br><span class="line">real,2</span><br><span class="line">e,4,3</span><br><span class="line">f,2,fy,-5e5</span><br><span class="line">d,1,all</span><br><span class="line">d,4,uy</span><br><span class="line"></span><br><span class="line">/solu</span><br><span class="line">nsubst,20,,20 !仅为获得time=0.4时的结果</span><br><span class="line">outres,all,all</span><br><span class="line">solve</span><br><span class="line"></span><br><span class="line">/post1</span><br><span class="line">pldisp,1</span><br><span class="line">esel,s,,,3</span><br><span class="line">etable,f1,smisc,1</span><br><span class="line">plls,f1,f1</span><br><span class="line"></span><br><span class="line">/post26</span><br><span class="line">nsol,2,3,u,y !节点3的位移</span><br><span class="line">esol,3,3,,smisc,1 !弹簧f1</span><br><span class="line">esol,4,3,,nmisc,1 !弹簧stat</span><br><span class="line">esol,5,3,,nmisc,3 !弹簧str1</span><br><span class="line">prod,6,1,,,,,,500</span><br><span class="line">xvar,6</span><br><span class="line">plvar,2</span><br><span class="line">plvar,3</span><br><span class="line">plvar,4</span><br><span class="line">plvar,5</span><br></pre></td></tr></table></figure><p>分别提取加载过程中圆杆的竖向变形、弹簧力以及弹簧状态随着加载力的变化曲线如下图所示，从计算结果种可以看出当P=200kN时，间隙闭合，此时圆杆的竖向变形恰好为△=0.2m；随着荷载P的继续增大，弹簧受压变形，当最终P增大到500kN时，圆杆总的竖向变形为0.3m，弹簧被压缩0.1m，弹簧力为100kN。</p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/image-20230814162044240.png?x-oss-process=style/watermark" alt="image-20230814162044240"></p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/image-20230814162141675.png?x-oss-process=style/watermark" alt="image-20230814162141675"></p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/image-20230814162222448.png?x-oss-process=style/watermark" alt="image-20230814162222448"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> ANSYS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 弹簧单元 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>ABAQUS高版本打不开低版本文件的解决方法</title>
+      <link href="/posts/f9cd7d70.html"/>
+      <url>/posts/f9cd7d70.html</url>
+      
+        <content type="html"><![CDATA[<p>ABAQUS在建模过程中会生成.cae后缀名的模型数据库文件，用于记录模型信息和分析任务等。理论情况下，高版本的ABAQUS是可以打开低版本ABAQUS保存的cae文件，并自动进行模型版本转换。但笔者在实际操作过程中，会出现打不开客户微信发来的低版本cae文件的情况，出现如下报错，网络上也找不到相关的解决办法。后来偶然在一本书中寻得，原来只是一个地方出现了疏漏，与诸位分享。</p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/2023/07/20230703194622.png?x-oss-process=style/watermark" alt="版本转换报错"></p><p>电脑端微信对聊天记录中的文件会自动下载，可能是出于安全的考虑，3.9版本后的微信都将默认保存的文件设置了”只读“的属性，这也就导致了高版本的ABAQUS转换cae文件时报错的问题。</p><p>解决办法也非常简单只需要在对应的.cae文件：右键&gt;属性&gt;常规属性里取消勾选”只读“即可，随后重新在高版本的ABAQUS CAE中打开。</p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/2023/07/image-20230703172405013-684583.png?x-oss-process=style/watermark" alt="cae文件属性"></p>]]></content>
+      
+      
+      <categories>
+          
+          <category> ABAQUS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 实体模型简支约束 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>矩形梁实体模型如何施加简支约束及计算结果对比</title>
       <link href="/posts/39e38786.html"/>
       <url>/posts/39e38786.html</url>
