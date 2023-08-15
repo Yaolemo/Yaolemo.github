@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>一文读懂ABAQUS中的Job Monitor</title>
+      <link href="/posts/79a573a1.html"/>
+      <url>/posts/79a573a1.html</url>
+      
+        <content type="html"><![CDATA[<p>在ANSYS中进行非线性分析，经典视窗中会自动出现一个迭代计算曲线，通过分析曲线的走势和大小，我们可以对当前非线性分析的求解阶段、收敛情况给出评价，从而给模型或者非线性求解的设置提供参考。那么如何ABAQUS/Standard分析作业的运行状态呢？</p><h1>监控分析作业|Job Monitor</h1><h2 id="收敛迭代">收敛迭代</h2><p>在Job Manager中单击Monitor，就可以查看分析作业的运行状态，一个典型分析作业的Job Monitor如图所示。</p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/image-20230815171017695.png?x-oss-process=style/watermark" alt="Job Monitor"></p><p>其中，各列数据含义如下：</p><ol><li><p>Step：分析步的编号，对应建模过程中的Step模块的设置；</p></li><li><p>Increment：增量步编号，可选程序自动控制或固定增量步；</p></li><li><p>Att：即Attempt，迭代过程中的尝试次数，每发生一次折减，Att就增加一次；</p></li><li><p>Severe Discon Iter：即Severe Discontinuity Iteration，严重不连续迭代次数，简称SDI；</p></li><li><p>Equil Iter：即Equilibrium Iteration，平衡迭代次数，简称EI；</p></li><li><p>Total Iter：总的迭代次数，等于SDI+EI；</p></li><li><p>Total Time/Freq：总的分析步时间/频率；</p></li><li><p>Step  Time/LPF：当前分析步时间/静力屈曲分析中的加载比例系数；</p></li><li><p>Time/LPF Inc：时间/加载比例系数增量步长。</p></li></ol><p>根据图中的案例，可以分析出：</p><p>分析步Step 1中有11个增量步Increment，每个增量步只做了一次尝试Att就收敛了。在第1个增量步的第一次尝试中发生了4次严重不连续迭代和1次平衡迭代，总迭代次数为3，当前增量步的增量步长为1，因此计算完成后下一增量步的分析步时间为1+1=2。随着每次增量步都能收敛，软件也在不断加大每次增量步的步长，每次增量步长增大为上一增量步长的150%，因此Step 1的最后一次增量步长达到了25，这11次增量步长加起来刚好为100对应分析步1的计算完成。</p><h2 id="不收敛迭代">不收敛迭代</h2><p>下面我们再来看一组不收敛迭代的Job Monitor。</p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/image-20230815170802005.png?x-oss-process=style/watermark" alt="Job Monitor"></p><p>在Step 2的第80增量步中，一共做了2次尝试得以收敛，第一次尝试的增量步长为2.94577e-6，计算不收敛后，程序减小增量步长为该值的25%，由于0.25×2.94577e-6要小于设置的最小增量步长1e-6，因此第2增量步的步长设置为1e-6，最终该增量步计算收敛了，进入第81增量步。在第81增量步中，第一次尝试的增量步长为上一增量步长的150%，也即1.5e-6，由于计算不收敛，第2次尝试的增量步长减小为1e-6，最终计算还是不收敛，由于已经达到我们设置的最小增量步长，所以计算终止了。</p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/image-20230815161843979.png?x-oss-process=style/watermark" alt="Job Monitor-Errors"></p><p>在Job Monitor窗口底部的Errors界面中可以看到程序提示的错误信息为，所需的时间增量步长小于设置的最小值。这个时候，即使我们把最小增量步长设置得更小，往往也不能解决根本问题，而且太小的时间增量步长，对于求解的时间和算力要求是极高的，这时候应该去检查模型本身是否存在问题。</p><p>那么如何在模型中找到求解存在问题的部分呢？在ABAQUS的Visualization模块中提供了Job Diagnostics作业诊断功能。</p><h1>作业诊断|Job Diagnostics</h1><p>在Visualization模块中选择菜单Tools→Job Diagnostics，就可以查看软件提供的分析诊断信息。其中Job History窗口显示了整个分析求解过程中的所有时间步和增量步，其中如果该增量步做了多次尝试，在其编号左边都有红色感叹号标记。右侧Summary窗口显示分析作业的名称、状态和分析版本，以及警告和错误的个数，单击Warnings和Errors可以查看详细的警告和错误信息。</p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/image-20230815163602581.png?x-oss-process=style/watermark" alt="Job Diagnostics"></p><p>我们点开Step 2的Increment 12，可以看到该增量步所做的所有迭代尝试，窗口右侧有5个标签页。</p><ol><li>Summary标签页显示此迭代步的一些基本信息、警告个数、接触诊断信息个数等；</li><li>Warning标签页显示完整的警告信息；</li><li>Residuals标签页显示了与方程求解平衡有关的量，如最大残余力、最大位移增量和最大位移校正量等；</li><li>Contact标签页显示了接触状态的变化情况，如过盈接触、接触打开等；</li><li>Elements标签页显示了迭代过程中与单元和材料点计算有关的信息。</li></ol><p>其中Residuals、Contact和Elements标签页下可以勾选页面底部的高亮所选节点，以便在模型中显示存在问题的节点位置，方便我们查找模型计算问题。上述功能的详细解释还需查看ABAQUS的帮助文档，此处不再赘述。</p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/image-20230815165020088.png?x-oss-process=style/watermark" alt="某一迭代的Job Diagnostics"></p><p>以上，便是在ABAQUS/Standard中监控分析作业，并根据模型求解过程采用作业诊断工具，查找模型问题的方法，希望对你有所帮助。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> ABAQUS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> Job Monitor </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>如何在ANSYS非线性弹簧上添加间隙功能（弹簧串联）</title>
       <link href="/posts/2a104636.html"/>
       <url>/posts/2a104636.html</url>
