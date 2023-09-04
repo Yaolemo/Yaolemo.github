@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>ANSYS APDL随机生成问题</title>
+      <link href="/posts/223d90a1.html"/>
+      <url>/posts/223d90a1.html</url>
+      
+        <content type="html"><![CDATA[<h1>引言</h1><p>在建模时，我们往往会遇到这样一类问题：在某一材料内部随机位置生成加强骨料，或者是材料内部的随机缺陷孔隙等等。这类问题往往可以简单归纳成随机生成，网络上有一些二次开发的插件用于“一键”解决该问题，但不出意外的需要为此高额付费，其实仔细想想，这个问题并没有这么难解决，背后的逻辑和道理都是通用的。那么随机生成如何在ANSYS中利用APDL命令操作实现呢？接下来我们通过一个简单的平面案例来解析。</p><h1>问题描述</h1><p>在一个长0.05m、宽0.03m的矩形平面内随机生成半径为0.001m的圆形，要求圆形部分的面积占比接近但不超过矩形面积的10%，且每个圆形之间互不重叠。</p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/image-20230904092104007.png?x-oss-process=style/watermark" alt="矩形平面内随机生成圆形"></p><h1>解答</h1><h2 id="问题分析">问题分析</h2><p>我们可以将该问题拆解为三个关键部分来逐一解决，首先是如何做到“随机”，其次如何保证圆形面积占比不超10%；最后如何确保圆形之间互不重合。</p><ol><li>ANSYS内部自带随机数生成功能，比如使用RAND(A,B)即可产生以A、B为下限和上限满足均匀分布的随机数，类似的还有高斯分布(GDIS)、三角分布(TRIA)、贝塔分布（BETA）和伽马分布（GRMM）等等。明白了这个，那么便可以使用RAND命令随机生成圆心坐标了，需要注意的是要保证生成的圆在矩形内部，随机圆心的坐标X_temp=RAND(0+0.001,0.05-0.001)，Y_temp=RAND(0+0.001,0.03-0.001)。</li><li>为保证圆形面积的占比不超过10%，这里我们可以使用Dowhile循环来实现，定义一个参数为Dowhile循环的判断条件，该参数为非零时继续执行Dowhile循环，反之退出。那么这个参数便可以定义为（0.1*矩形面积-圆形面积）。</li><li>为确保圆形之间互不重合，我们都可以想到去判断最近的两个圆心之间的距离是否大于圆的直径就可以了，但是如何在这样的模型中找到最近的两个圆心距离呢？我们可以换一种思路，先定义数组分别用于存入已生成的所有圆心坐标，和当前随机生成圆心坐标与已生成的所有圆心坐标之间的距离。每生成一次随机圆心坐标，就计算一次圆心距离数组，再利用DO循环找出该数组的最小值，用IF条件语句判断该最小值是否大于圆形的直径。如果大于，则该随机圆心坐标有效，反之无效重新生成下一个圆心坐标。</li></ol><p>想清楚了上面这三个关键，这个问题也就不难解决了。</p><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/image-20230904094341266.png?x-oss-process=style/watermark" alt="代码运算逻辑"></p><h2 id="命令流">命令流</h2><p>最后附上命令流以供参考。</p><pre><code>/PREP7!创建矩形区域BLC4,,,0.05,0.03!!!!PI=acos(-1)!圆周率AC=PI*0.001**2!半径0.001圆的面积AR=0.05*0.03!矩形区域面积A0=0!区域内所有圆的面积,初始为0PA=1!循环判断条件,非零为真J=0!定义一个足够大的数组用于存放圆心坐标*DIM,CIRCLE_X,ARRAY,50*DIM,CIRCLE_Y,ARRAY,50*DIM,DELT,ARRAY,50!圆心距离数组*DOWHILE,PAX_temp=RAND(0+0.001,0.05-0.001)Y_temp=RAND(0+0.001,0.03-0.001)*DO,I,1,50DELT(I)=SQRT((X_temp-CIRCLE_X(I))**2+(Y_temp-CIRCLE_Y(I))**2)*ENDDO!找出圆心距离数组中的最小值DELT_min=DELT(1)*DO,I,2,50    *IF,DELT(I),LT,DELT_min,then  DELT_min=DELT(I)      *ENDIF  *ENDDO  !最小圆心距离≥0.002,则该组随机坐标有效,由此创建新圆*IF,DELT_min,GE,0.002,THENWPAVE,X_temp,Y_tempCYL4,,,0.001!创建小圆J=J+1!用于循环计数,当前生成圆的个数A0=A0+AC!当前矩形内圆的面积PA=0.1*AR-A0-AC!用于判断生成下一圆后,面积是否超过10%CIRCLE_X(J)=X_temp!将圆心坐标存入数组CIRCLE_Y(J)=Y_temp*ENDIFWPCSYS,-1*ENDDO</code></pre><p><img src="https://yaolemo.oss-cn-guangzhou.aliyuncs.com/image-20230904103457777.png?x-oss-process=style/watermark" alt="矩形内随机生成的圆形"></p><p>在理解了二维问题的基础上，要想在三维模型中随机生成球体等情况也就不难解决了，无外乎就是一些判断条件的改变，感兴趣的读者可以自己进行一些尝试。</p><p>类似的，椭球、方形、棱锥体的随机生成也不难实现。此外，在模型中额外引入随机数用于随机半径的产生，也可以用于模拟不同粒径大小的随机骨料生成。</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> ANSYS </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 随机生成 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>一文读懂ABAQUS中的Job Monitor</title>
       <link href="/posts/79a573a1.html"/>
       <url>/posts/79a573a1.html</url>
